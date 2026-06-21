@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Grade to Student</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .form-panel {
+            background-color: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #9b59b6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+        }
+
+        .info-card {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 14px 25px;
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 14px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #e8daef;
+            color: #6c3483;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            display: none;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #9b59b6;
+            font-weight: 700;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <div class="logo">Grade Management System</div>
+        <h2 class="form-title">Assign Grade to Student</h2>
+        
+        <form id="gradeForm">
+            <div class="form-group">
+                <label for="professorId">Professor ID:</label>
+                <input type="text" id="professorId" name="professorId" required>
+                <div id="professorInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+                <div id="studentInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="courseId">Course ID:</label>
+                <input type="text" id="courseId" name="courseId" required>
+                <div id="courseInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="grade">Grade:</label>
+                <select id="grade" name="grade" required>
+                    <option value="">Select grade</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="F">F</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Assign Grade</button>
+                <a href="/" class="back-btn">Cancel</a>
+            </div>
+        </form>
+        
+        <div id="confirmationMessage" class="confirmation-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        // Show professor info when ID is entered
+        document.getElementById('professorId').addEventListener('change', async function() {
+            const professorId = this.value;
+            const professorInfo = document.getElementById('professorInfo');
+            
+            if (!professorId) {
+                professorInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/professors/${professorId}/dashboard`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    professorInfo.innerHTML = `
+                        <strong>Professor Found:</strong><br>
+                        Name: ${data.name}<br>
+                        Email: ${data.email}<br>
+                        Department: ${data.department}<br>
+                        Courses Teaching: ${data.total_courses}
+                    `;
+                    professorInfo.style.display = 'block';
+                } else {
+                    professorInfo.innerHTML = `<p style="color: red;">Professor not found</p>`;
+                    professorInfo.style.display = 'block';
+                }
+            } catch (error) {
+                professorInfo.innerHTML = `<p style="color: red;">Error fetching professor details</p>`;
+                professorInfo.style.display = 'block';
+            }
+        });
+
+        // Show student info when ID is entered
+        document.getElementById('studentId').addEventListener('change', async function() {
+            const studentId = this.value;
+            const studentInfo = document.getElementById('studentInfo');
+            
+            if (!studentId) {
+                studentInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/students/${studentId}/dashboard`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    studentInfo.innerHTML = `
+                        <strong>Student Found:</strong><br>
+                        Name: ${data.name}<br>
+                        Email: ${data.email}<br>
+                        Major: ${data.major}<br>
+                        Courses Enrolled: ${data.total_courses}
+                    `;
+                    studentInfo.style.display = 'block';
+                } else {
+                    studentInfo.innerHTML = `<p style="color: red;">Student not found</p>`;
+                    studentInfo.style.display = 'block';
+                }
+            } catch (error) {
+                studentInfo.innerHTML = `<p style="color: red;">Error fetching student details</p>`;
+                studentInfo.style.display = 'block';
+            }
+        });
+
+        // Show course info when ID is entered
+        document.getElementById('courseId').addEventListener('change', async function() {
+            const courseId = this.value;
+            const courseInfo = document.getElementById('courseInfo');
+            
+            if (!courseId) {
+                courseInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/courses/${courseId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    courseInfo.innerHTML = `
+                        <strong>Course Found:</strong><br>
+                        Name: ${data.name}<br>
+                        Department: ${data.department}<br>
+                        Credits: ${data.credits}
+                    `;
+                    courseInfo.style.display = 'block';
+                } else {
+                    courseInfo.innerHTML = `<p style="color: red;">Course not found</p>`;
+                    courseInfo.style.display = 'block';
+                }
+            } catch (error) {
+                courseInfo.innerHTML = `<p style="color: red;">Error fetching course details</p>`;
+                courseInfo.style.display = 'block';
+            }
+        });
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showConfirmation(message) {
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.textContent = message;
+            confirmationMessage.style.display = 'block';
+            setTimeout(() => {
+                confirmationMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        async function assignGrade(event) {
+            event.preventDefault();
+            
+            const professorId = document.getElementById('professorId').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            const courseId = document.getElementById('courseId').value.trim();
+            const grade = document.getElementById('grade').value.trim().toUpperCase();
+
+            if (!professorId || !studentId || !courseId || !grade) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            // Validate grade is a valid letter grade
+            const validGrades = ['A', 'B', 'C', 'D', 'F'];
+            if (!validGrades.includes(grade)) {
+                showError('Grade must be a letter grade (A, B, C, D, or F)');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/professors/${professorId}/assign_grade`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentId: studentId,
+                        courseId: courseId,
+                        grade: grade
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showConfirmation('Grade assigned successfully!');
+                    document.getElementById('gradeForm').reset();
+                    // Clear info cards
+                    document.querySelectorAll('.info-card').forEach(card => {
+                        card.style.display = 'none';
+                    });
+                } else {
+                    showError(data.error || 'Failed to assign grade');
+                }
+            } catch (error) {
+                console.error('Error assigning grade:', error);
+                showError('Failed to assign grade. Please try again.');
+            }
+        }
+
+        // Add event listener to form
+        document.getElementById('gradeForm').addEventListener('submit', assignGrade);
+    </script>
+</body>
+</html>

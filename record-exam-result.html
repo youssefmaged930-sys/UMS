@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Exam Result</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .form-panel {
+            background-color: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #9b59b6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+        }
+
+        .info-card {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 14px 25px;
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 14px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #e8daef;
+            color: #6c3483;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            display: none;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #9b59b6;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .grade-display {
+            font-weight: 600;
+            font-size: 18px;
+            color: #9b59b6;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <div class="logo">Exam Grading System</div>
+        <h2 class="form-title">Record Exam Result</h2>
+        
+        <form id="gradeForm">
+            <div class="form-group">
+                <label for="examId">Exam ID:</label>
+                <input type="text" id="examId" name="examId" required>
+                <div id="examInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+                <div id="studentInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="grade">Grade:</label>
+                <select id="grade" name="grade" required>
+                    <option value="">Select grade</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="F">F</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Record Grade</button>
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+        </form>
+        
+        <div id="confirmationMessage" class="confirmation-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        // Fetch exam info when ID is entered
+        document.getElementById('examId').addEventListener('input', async function() {
+            const examId = this.value;
+            const examInfo = document.getElementById('examInfo');
+            
+            if (!examId) {
+                examInfo.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/exam/exam/${examId}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    examInfo.innerHTML = `
+                        <strong>Exam Found:</strong><br>
+                        Course: ${result.course}<br>
+                        Date: ${result.date}<br>
+                        Duration: ${result.duration} minutes
+                    `;
+                    examInfo.style.display = 'block';
+                } else {
+                    examInfo.innerHTML = `
+                        <strong style="color: #721c24;">Exam Not Found</strong><br>
+                        Please enter a valid exam ID
+                    `;
+                    examInfo.style.display = 'block';
+                }
+            } catch (error) {
+                examInfo.innerHTML = `
+                    <strong style="color: #721c24;">Error</strong><br>
+                    Failed to fetch exam information
+                `;
+                examInfo.style.display = 'block';
+                console.error('Error:', error);
+            }
+        });
+
+        // Fetch student info when ID is entered
+        document.getElementById('studentId').addEventListener('input', async function() {
+            const studentId = this.value;
+            const studentInfo = document.getElementById('studentInfo');
+            
+            if (!studentId) {
+                studentInfo.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/students/${studentId}/dashboard`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    studentInfo.innerHTML = `
+                        <strong>Student Found:</strong><br>
+                        Name: ${result.name}<br>
+                        Email: ${result.email}<br>
+                        Major: ${result.major}
+                    `;
+                    studentInfo.style.display = 'block';
+                } else {
+                    studentInfo.innerHTML = `
+                        <strong style="color: #721c24;">Student Not Found</strong><br>
+                        Please enter a valid student ID
+                    `;
+                    studentInfo.style.display = 'block';
+                }
+            } catch (error) {
+                studentInfo.innerHTML = `
+                    <strong style="color: #721c24;">Error</strong><br>
+                    Failed to fetch student information
+                `;
+                studentInfo.style.display = 'block';
+                console.error('Error:', error);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('gradeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const examId = document.getElementById('examId').value;
+            const studentId = document.getElementById('studentId').value;
+            const grade = document.getElementById('grade').value;
+            
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            
+            if (!grade) {
+                errorMessage.textContent = "Please select a grade";
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/exam/record-result', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        examId,
+                        studentId,
+                        grade
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Success case
+                    const confirmationMessage = document.getElementById('confirmationMessage');
+                    confirmationMessage.innerHTML = `
+                        Recorded grade <span class="grade-display">${grade}</span> for student
+                    `;
+                    confirmationMessage.style.display = 'block';
+                    
+                    // Clear the form
+                    this.reset();
+                    document.getElementById('examInfo').style.display = 'none';
+                    document.getElementById('studentInfo').style.display = 'none';
+                    
+                    // Hide the message after 3 seconds
+                    setTimeout(() => {
+                        confirmationMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    errorMessage.textContent = result.error || "Failed to record grade";
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = "Failed to connect to server";
+                errorMessage.style.display = 'block';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>University Management System</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .button-panel {
+            background-color: #ffffff;
+            width: 800px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .button-panel a {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a6fa5;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .button-panel a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .button-panel a:hover {
+            background-color: #3a5a8a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-panel a:hover::before {
+            left: 100%;
+        }
+
+        .button-panel a:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-panel a:last-child {
+            background-color: #e74c3c;
+            grid-column: span 3;
+            text-align: center;
+        }
+
+        .button-panel a:last-child:hover {
+            background-color: #c0392b;
+        }
+
+        .submit-btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #e74c3c;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            grid-column: span 3;
+            text-align: center;
+        }
+
+        .submit-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="button-panel" class="button-panel">
+        <a href="add-student.html">1. Add Student</a>
+        <a href="add-professor.html">2. Add Professor</a>
+        <a href="add-course.html">3. Add Course</a>
+        <a href="enroll-student-in-course.html">4. Enroll Student in Course</a>
+        <a href="assign-professor-to-course.html">5. Assign Professor to Course</a>
+        <a href="student-login.html">6. View Student Dashboard</a>
+        <a href="professor-login.html">7. View Professor Dashboard</a>
+        <a href="add-book.html">9. Add Book to Library</a>
+        <a href="register-student.html">10. Register Student to Library</a>
+        <a href="borrow-book.html">11. Borrow Book</a>
+        <a href="return-book.html">12. Return Book</a>
+        <a href="schedule-exam.html">13. Schedule Exam</a>
+        <a href="record-exam-result.html">14. Record Exam Result</a>
+        <a href="view-exam-info.html">15. View Exam Info</a>
+        <a href="add-classroom.html">16. Add Classroom</a>
+        <a href="allocate-time-to-classroom.html">17. Allocate Time Slot</a>
+        <a href="view-classroom-info.html">18. View Classroom Info</a>
+        <a href="assign-schedule.html">19. Assign Schedule</a>
+        <a href="view-schedule-details.html">20. View Schedule Details</a>
+        <a href="assign-grade.html">21. Assign Grade to Student</a>
+
+        <button type="submit" class="submit-btn">Save Data</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const panel = document.getElementById('button-panel');
+
+            panel.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const response = await fetch('/data_manager/save', {
+                        method: 'POST',
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert('Data Saved Successfully');
+                    }
+                } catch (error) {
+                    alert('Failed to save data');
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enroll Student in Course</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-panel {
+      background-color: #ffffff;
+      width: 500px;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-panel h2 {
+      color: #2c3e50;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #34495e;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .form-group input:focus {
+      border-color: #4a6fa5;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    .submit-btn, .back-btn {
+      padding: 12px 25px;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      flex: 1;
+      text-align: center;
+    }
+
+    .submit-btn {
+      background-color: #4a6fa5;
+      margin-right: 10px;
+    }
+
+    .back-btn {
+      background-color: #e74c3c;
+      margin-left: 10px;
+      text-decoration: none;
+    }
+
+    .submit-btn:hover {
+      background-color: #3a5a8a;
+      transform: translateY(-2px);
+    }
+
+    .back-btn:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .confirmation-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .student-info, .course-info {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-left: 5px solid #4a6fa5;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-panel">
+    <h2>Enroll Student in Course</h2>
+    <form id="enrollmentForm">
+      <div class="form-group">
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentId" required />
+        <div id="studentInfo" class="student-info"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="courseId">Course ID:</label>
+        <input type="text" id="courseId" name="courseId" required />
+        <div id="courseInfo" class="course-info"></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">Enroll Student</button>
+        <a href="/" class="back-btn">Back to Main Menu</a>
+      </div>
+    </form>
+    <div id="confirmationMessage" class="confirmation-message"></div>
+  </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const studentIdInput = document.getElementById('studentId');
+      const courseIdInput = document.getElementById('courseId');
+      const studentInfo = document.getElementById('studentInfo');
+      const courseInfo = document.getElementById('courseInfo');
+      const form = document.getElementById('enrollmentForm');
+      const confirmationMessage = document.getElementById('confirmationMessage');
+
+      // Student lookup
+      studentIdInput.addEventListener('change', async () => {
+        const id = studentIdInput.value.trim();
+        if (!id) {
+          studentInfo.style.display = 'none';
+          return;
+        }
+
+        try {
+          const response = await fetch(`/students/${id}/dashboard`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const student = await response.json();
+            studentInfo.innerHTML = `
+              <strong>Student Found:</strong><br>
+              Name: ${student.name}<br>
+              Email: ${student.email || 'N/A'}<br>
+              Major: ${student.major || 'N/A'}
+            `;
+            studentInfo.style.display = 'block';
+          } else if (response.status === 404) {
+            studentInfo.innerHTML = `<span style="color:red">Student not found.</span>`;
+            studentInfo.style.display = 'block';
+          } else {
+            const error = await response.json();
+            studentInfo.innerHTML = `<span style="color:red">Error: ${error.error || 'Unknown error'}</span>`;
+            studentInfo.style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Fetch error:', err);
+          studentInfo.innerHTML = `<span style="color:red">Network error. Please try again.</span>`;
+          studentInfo.style.display = 'block';
+        }
+      });
+
+      // Course lookup
+      courseIdInput.addEventListener('change', async () => {
+        const id = courseIdInput.value.trim();
+        if (!id) {
+          courseInfo.style.display = 'none';
+          return;
+        }
+
+        try {
+          const response = await fetch(`/courses/${id}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          if (response.ok) {
+            const course = await response.json();
+            courseInfo.innerHTML = `
+              <strong>Course Found:</strong><br>
+              Name: ${course.name}<br>
+              Department: ${course.department || 'N/A'}<br>
+              Credits: ${course.credits || 'N/A'}
+            `;
+            courseInfo.style.display = 'block';
+          } else if (response.status === 404) {
+            courseInfo.innerHTML = `<span style="color:red">Course not found.</span>`;
+            courseInfo.style.display = 'block';
+          } else {
+            const error = await response.json();
+            courseInfo.innerHTML = `<span style="color:red">Error: ${error.error || 'Unknown error'}</span>`;
+            courseInfo.style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Fetch error:', err);
+          courseInfo.innerHTML = `<span style="color:red">Network error. Please try again.</span>`;
+          courseInfo.style.display = 'block';
+        }
+      });
+
+      // Form submission
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const studentId = studentIdInput.value.trim();
+        const courseId = courseIdInput.value.trim();
+
+        if (!studentId || !courseId) {
+          showMessage('Please fill in all fields.', false);
+          return;
+        }
+
+        try {
+          const response = await fetch(`/students/${studentId}/enroll`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({courseId: courseId})
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showMessage(data.message || 'Student enrolled successfully!', true);
+            form.reset();
+            studentInfo.style.display = 'none';
+            courseInfo.style.display = 'none';
+          } else {
+            showMessage(data.error || 'Enrollment failed. Please try again.', false);
+          }
+        } catch (err) {
+          console.error('Submission error:', err);
+          showMessage('Network error. Please try again.', false);
+        }
+      });
+
+      function showMessage(message, success) {
+        confirmationMessage.textContent = message;
+        confirmationMessage.style.backgroundColor = success ? '#d4edda' : '#f8d7da';
+        confirmationMessage.style.color = success ? '#155724' : '#721c24';
+        confirmationMessage.style.display = 'block';
+        setTimeout(() => {
+          confirmationMessage.style.display = 'none';
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

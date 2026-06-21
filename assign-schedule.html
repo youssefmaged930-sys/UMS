@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Schedule</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .form-panel {
+            background-color: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #9b59b6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+        }
+
+        .info-card {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 14px 25px;
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 14px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #e8daef;
+            color: #6c3483;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            display: none;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #9b59b6;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .time-slot {
+            font-weight: 600;
+            color: #9b59b6;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <div class="logo">Schedule Management</div>
+        <h2 class="form-title">Assign New Schedule</h2>
+        
+        <form id="scheduleForm">
+            <div class="form-group">
+                <label for="scheduleId">Schedule ID:</label>
+                <input type="text" id="scheduleId" name="scheduleId" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="courseId">Course ID:</label>
+                <input type="text" id="courseId" name="courseId" required>
+                <div id="courseInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="professorId">Professor ID:</label>
+                <input type="text" id="professorId" name="professorId" required>
+                <div id="professorInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="classroomId">Classroom ID:</label>
+                <input type="text" id="classroomId" name="classroomId" required>
+                <div id="classroomInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Date (YYYY-MM-DD):</label>
+                <input type="date" id="date" name="date" required 
+                       pattern="\d{4}-\d{2}-\d{2}" placeholder="YYYY-MM-DD">
+            </div>
+            
+            <div class="form-group">
+                <label for="timeSlot">Time Slot:</label>
+                <select id="timeSlot" name="timeSlot" required>
+                    <option value="">Select a time slot</option>
+                    # generated in JavaScript
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Assign Schedule</button>
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+        </form>
+        
+        <div id="confirmationMessage" class="confirmation-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        // Generate fixed time slots (1hr 40min slots with 10min breaks)
+        function generateTimeSlots() {
+            const slots = [];
+            let currentTime = 510; // 8:30 AM in minutes
+            const endTime = 1100; // 7:20 PM in minutes
+            const slotDuration = 100; // 1hr 40min
+            
+            while (currentTime + slotDuration <= endTime) {
+                const startHours = Math.floor(currentTime / 60);
+                const startMins = currentTime % 60;
+                const endTimeValue = currentTime + slotDuration;
+                const endHours = Math.floor(endTimeValue / 60);
+                const endMins = endTimeValue % 60;
+                
+                const slotText = `${startHours.toString().padStart(2, '0')}:${startMins.toString().padStart(2, '0')}-${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+                slots.push({ text: slotText, value: slotText }); // Use the same text as value
+                
+                // Add 10 minute break
+                currentTime += slotDuration + 10;
+            }
+            
+            return slots;
+        }
+
+        // Initialize time slots on page load
+        const timeSlots = generateTimeSlots();
+        const timeSlotSelect = document.getElementById('timeSlot');
+        timeSlots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot.value;
+            option.textContent = slot.text;
+            timeSlotSelect.appendChild(option);
+        });
+
+        document.getElementById('courseId').addEventListener('change', async (e) => {
+            const courseId = e.target.value;
+            const infoCard = document.getElementById('courseInfo');
+            
+            try {
+                const response = await fetch(`/courses/${courseId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    infoCard.innerHTML = `
+                        <p>Course Name: ${data.name}</p>
+                        <p>Department: ${data.department}</p>
+                        <p>Credits: ${data.credits}</p>
+                    `;
+                    infoCard.style.display = 'block';
+                } else {
+                    infoCard.innerHTML = `<p style="color: red;">Course not found</p>`;
+                    infoCard.style.display = 'block';
+                }
+            } catch (error) {
+                infoCard.innerHTML = `<p style="color: red;">Error fetching course details</p>`;
+                infoCard.style.display = 'block';
+            }
+        });
+
+        document.getElementById('professorId').addEventListener('change', async (e) => {
+            const profId = e.target.value;
+            const infoCard = document.getElementById('professorInfo');
+            
+            try {
+                const response = await fetch(`/professors/${profId}/dashboard`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    infoCard.innerHTML = `
+                        <p>Name: ${data.name}</p>
+                        <p>Department: ${data.department}</p>
+                        <p>Email: ${data.email}</p>
+                    `;
+                    infoCard.style.display = 'block';
+                } else {
+                    infoCard.innerHTML = `<p style="color: red;">Professor not found</p>`;
+                    infoCard.style.display = 'block';
+                }
+            } catch (error) {
+                infoCard.innerHTML = `<p style="color: red;">Error fetching professor details</p>`;
+                infoCard.style.display = 'block';
+            }
+        });
+
+        document.getElementById('classroomId').addEventListener('change', async (e) => {
+            const classroomId = e.target.value;
+            const infoCard = document.getElementById('classroomInfo');
+            
+            try {
+                const response = await fetch(`/classrooms/${classroomId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    infoCard.innerHTML = `
+                        <p>Location: ${data.location}</p>
+                        <p>Capacity: ${data.capacity}</p>
+                    `;
+                    infoCard.style.display = 'block';
+                } else {
+                    infoCard.innerHTML = `<p style="color: red;">Classroom not found</p>`;
+                    infoCard.style.display = 'block';
+                }
+            } catch (error) {
+                infoCard.innerHTML = `<p style="color: red;">Error fetching classroom details</p>`;
+                infoCard.style.display = 'block';
+            }
+        });
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showConfirmation(message) {
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.textContent = message;
+            confirmationMessage.style.display = 'block';
+            setTimeout(() => {
+                confirmationMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        async function assignSchedule(event) {
+            event.preventDefault();
+            
+            const scheduleId = document.getElementById('scheduleId').value.trim();
+            const courseId = document.getElementById('courseId').value.trim();
+            const professorId = document.getElementById('professorId').value.trim();
+            const classroomId = document.getElementById('classroomId').value.trim();
+            const timeSlot = document.getElementById('timeSlot').value;
+            const date = document.getElementById('date').value;
+
+            // Check each field individually
+            let missingFields = [];
+            if (!scheduleId) missingFields.push('Schedule ID');
+            if (!courseId) missingFields.push('Course ID');
+            if (!professorId) missingFields.push('Professor ID');
+            if (!classroomId) missingFields.push('Classroom ID');
+            if (!timeSlot) missingFields.push('Time Slot');
+            if (!date) missingFields.push('Date');
+
+            if (missingFields.length > 0) {
+                showError(`Missing required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            try {
+                const response = await fetch('/schedules/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scheduleId,
+                        courseId,
+                        professorId,
+                        classroomId,
+                        timeSlot,
+                        date
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showConfirmation('Schedule assigned successfully!');
+                    document.getElementById('scheduleForm').reset();
+                    // Clear info cards
+                    document.querySelectorAll('.info-card').forEach(card => {
+                        card.style.display = 'none';
+                    });
+                } else {
+                    showError(data.error || 'Failed to assign schedule');
+                }
+            } catch (error) {
+                console.error('Error assigning schedule:', error);
+                showError('Failed to assign schedule. Please try again.');
+            }
+        }
+
+        // Add event listener to form
+        document.getElementById('scheduleForm').addEventListener('submit', assignSchedule);
+    </script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .form-panel {
+            background-color: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #27ae60;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+        }
+
+        .info-card {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 14px 25px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 14px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #d5f5e3;
+            color: #196f3d;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            display: none;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #27ae60;
+            font-weight: 700;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <div class="logo">University Library</div>
+        <h2 class="form-title">Borrow Book</h2>
+        
+        <form id="borrowForm">
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+                <div id="studentInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bookId">Book ID:</label>
+                <input type="text" id="bookId" name="bookId" required>
+                <div id="bookInfo" class="info-card"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Borrow Book</button>
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+        </form>
+        
+        <div id="confirmationMessage" class="confirmation-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('borrowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const studentId = document.getElementById('studentId').value;
+            const bookId = document.getElementById('bookId').value;
+            
+            const errorMessage = document.getElementById('errorMessage');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            errorMessage.style.display = 'none';
+            confirmationMessage.style.display = 'none';
+            
+            try {
+                const response = await fetch('/library/borrow-book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentId: studentId,
+                        bookId: bookId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Success case
+                    confirmationMessage.textContent = data.message;
+                    confirmationMessage.style.display = 'block';
+                    
+                    // Clear the form
+                    this.reset();
+                    document.getElementById('studentInfo').style.display = 'none';
+                    document.getElementById('bookInfo').style.display = 'none';
+                    
+                    // Hide the message after 3 seconds
+                    setTimeout(() => {
+                        confirmationMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // Show error message from server
+                    errorMessage.textContent = data.error || 'Failed to borrow book';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred while borrowing the book';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Show student info when ID is entered
+        document.getElementById('studentId').addEventListener('input', async function() {
+            const studentId = this.value;
+            const studentInfo = document.getElementById('studentInfo');
+            
+            try {
+                const response = await fetch(`/library/students/${studentId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const student = data;
+                    studentInfo.innerHTML = `
+                        <strong>Student Found:</strong><br>
+                        Name: ${student.name}<br>
+                        Email: ${student.email}<br>
+                        Major: ${student.major}<br>
+                        Library Registered: ${student.libraryRegistered ? '✅' : '❌'}
+                    `;
+                    studentInfo.style.display = 'block';
+                } else {
+                    studentInfo.style.display = 'none';
+                    errorMessage.textContent = 'An error occurred while fetching student info';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                studentInfo.style.display = 'none';
+                errorMessage.textContent = error;
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Show book info when ID is entered
+        document.getElementById('bookId').addEventListener('input', async function() {
+            const bookId = this.value;
+            const bookInfo = document.getElementById('bookInfo');
+            
+            try {
+                const response = await fetch(`/library/books/${bookId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const book = data;
+                    bookInfo.innerHTML = `
+                        <strong>Book Found:</strong><br>
+                        Title: ${book.title}<br>
+                        Author: ${book.author}<br>
+                        Status: ${book.available ? 'Available' : 'Checked Out'}
+                    `;
+                    bookInfo.style.display = 'block';
+                } else {
+                    bookInfo.style.display = 'none';
+                    errorMessage.textContent = 'An error occurred while fetching book info';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                bookInfo.style.display = 'none';
+                errorMessage.textContent = error;
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

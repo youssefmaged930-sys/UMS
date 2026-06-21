@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Professor to Course</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-panel {
+            background-color: #ffffff;
+            width: 500px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #4a6fa5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .submit-btn:hover {
+            background-color: #3a5a8a;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #d4edda;
+            color: #155724;
+            display: none;
+        }
+
+        .professor-info, .course-info {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <h2>Assign Professor to Course</h2>
+        <form id="assignmentForm">
+            <div class="form-group">
+                <label for="professorId">Professor ID:</label>
+                <input type="text" id="professorId" name="professorId" required>
+                <div id="professorInfo" class="professor-info"></div>
+            </div>
+            <div class="form-group">
+                <label for="courseId">Course ID:</label>
+                <input type="text" id="courseId" name="courseId" required>
+                <div id="courseInfo" class="course-info"></div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Assign Professor</button>
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+        </form>
+        <div id="confirmationMessage" class="confirmation-message"></div>
+    </div>
+
+    <script>
+        const professorInfo = document.getElementById('professorInfo');
+        const courseInfo = document.getElementById('courseInfo');
+
+        document.getElementById('professorId').addEventListener('change', async function() {
+            const id = this.value.trim();
+            if (!id) {
+                professorInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/professors/${id}/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const professor = await response.json();
+                    professorInfo.innerHTML = `
+                        <strong>Professor Found:</strong><br>
+                        Name: ${professor.name}<br>
+                        Email: ${professor.email || 'N/A'}<br>
+                        Department: ${professor.department || 'N/A'}
+                    `;
+                    professorInfo.style.display = 'block';
+                } else if (response.status === 404) {
+                    professorInfo.innerHTML = `<span style="color:red">Professor not found.</span>`;
+                    professorInfo.style.display = 'block';
+                } else {
+                    const error = await response.json();
+                    professorInfo.innerHTML = `<span style="color:red">Error: ${error.error || 'Unknown error'}</span>`;
+                    professorInfo.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                professorInfo.innerHTML = `<span style="color:red">Network error. Please try again.</span>`;
+                professorInfo.style.display = 'block';
+            }
+        });
+
+        // Display course info when ID is entered
+        document.getElementById('courseId').addEventListener('change', async function() {
+            const id = this.value.trim();
+            if (!id) {
+                courseInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/courses/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const course = await response.json();
+                    courseInfo.innerHTML = `
+                        <strong>Course Found:</strong><br>
+                        Name: ${course.name}<br>
+                        Department: ${course.department || 'N/A'}<br>
+                        Credits: ${course.credits || 'N/A'}
+                    `;
+                    courseInfo.style.display = 'block';
+                } else if (response.status === 404) {
+                    courseInfo.innerHTML = `<span style="color:red">Course not found.</span>`;
+                    courseInfo.style.display = 'block';
+                } else {
+                    const error = await response.json();
+                    courseInfo.innerHTML = `<span style="color:red">Error: ${error.error || 'Unknown error'}</span>`;
+                    courseInfo.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                courseInfo.innerHTML = `<span style="color:red">Network error. Please try again.</span>`;
+                courseInfo.style.display = 'block';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('assignmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const professorId = document.getElementById('professorId').value.trim();
+            const courseId = document.getElementById('courseId').value.trim();
+            const confirmationMessage = document.getElementById('confirmationMessage');
+
+            try {
+                const response = await fetch('/professors/assign-professor-to-course', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        professorId: professorId,
+                        courseId: courseId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    confirmationMessage.textContent = 'Professor has been successfully assigned to the course';
+                    confirmationMessage.style.backgroundColor = '#d4edda';
+                    confirmationMessage.style.color = '#155724';
+                    confirmationMessage.style.display = 'block';
+                    
+                    // Clear the form
+                    this.reset();
+                    document.getElementById('professorInfo').style.display = 'none';
+                    document.getElementById('courseInfo').style.display = 'none';
+                } else {
+                    confirmationMessage.textContent = `Error: ${data.error || 'Failed to assign professor to course'}`;
+                    confirmationMessage.style.backgroundColor = '#f8d7da';
+                    confirmationMessage.style.color = '#721c24';
+                    confirmationMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                confirmationMessage.textContent = error;
+                confirmationMessage.style.backgroundColor = '#f8d7da';
+                confirmationMessage.style.color = '#721c24';
+                confirmationMessage.style.display = 'block';
+            }
+            
+            // Hide the message after 5 seconds
+            setTimeout(() => {
+                confirmationMessage.style.display = 'none';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

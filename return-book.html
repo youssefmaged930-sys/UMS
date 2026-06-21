@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Book</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .form-panel {
+            background-color: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #27ae60;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 14px 25px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .back-btn {
+            padding: 14px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin-left: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+            transform: translateY(-2px);
+        }
+
+        .confirmation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #d5f5e3;
+            color: #196f3d;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            display: none;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #27ae60;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .book-info, .student-info {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+
+        .book-info h3, .student-info h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .book-info p, .student-info p {
+            margin: 5px 0;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-panel">
+        <div class="logo">University Library</div>
+        <h2 class="form-title">Return Book</h2>
+        
+        <form id="returnBookForm">
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+                <div id="studentInfo" class="student-info"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bookId">Book ID:</label>
+                <input type="text" id="bookId" name="bookId" required>
+                <div id="bookInfo" class="book-info"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn" id="submitBtn">Return Book</button>
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+        </form>
+        
+        <div id="confirmationMessage" class="confirmation-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('returnBookForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const bookInfo = document.getElementById('bookInfo');
+            const studentInfo = document.getElementById('studentInfo');
+            const studentIdInput = document.getElementById('studentId');
+            const bookIdInput = document.getElementById('bookId');
+
+            // Function to fetch book information
+            async function fetchBookInfo(bookId) {
+                try {
+                    const response = await fetch(`/library/books/${bookId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        bookInfo.innerHTML = `
+                            <h3>Book Information</h3>
+                            <p><strong>Title:</strong> ${data.title}</p>
+                            <p><strong>Author:</strong> ${data.author}</p>
+                            <p><strong>Status:</strong> ${data.available ? 'Available' : 'Borrowed'}</p>
+                            ${data.borrowed_by ? `<p><strong>Borrowed by:</strong> ${data.borrowed_by}</p>` : ''}
+                        `;
+                        bookInfo.style.display = 'block';
+                    } else {
+                        bookInfo.style.display = 'none';
+                        errorMessage.textContent = 'Book not found';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    bookInfo.style.display = 'none';
+                    errorMessage.textContent = 'An error occurred while fetching book info';
+                    errorMessage.style.display = 'block';
+                }
+            }
+
+            // Function to fetch student information
+            async function fetchStudentInfo(studentId) {
+                try {
+                    const response = await fetch(`/library/students/${studentId}`);
+                    if (response.ok) {
+                        const student = await response.json();
+                        studentInfo.innerHTML = `
+                            <h3>Student Information</h3>
+                            <p><strong>Name:</strong> ${student.name}</p>
+                            <p><strong>Email:</strong> ${student.email}</p>
+                            <p><strong>Major:</strong> ${student.major}</p>
+                            <p><strong>Library Registered:</strong> ${student.libraryRegistered ? '✅' : '❌'}</p>
+                        `;
+                        studentInfo.style.display = 'block';
+                        submitBtn.disabled = !student.libraryRegistered;
+                    } else {
+                        studentInfo.style.display = 'none';
+                        errorMessage.textContent = 'Student not found';
+                        errorMessage.style.display = 'block';
+                        submitBtn.disabled = true;
+                    }
+                } catch (error) {
+                    studentInfo.style.display = 'none';
+                    errorMessage.textContent = 'An error occurred while fetching student info';
+                    errorMessage.style.display = 'block';
+                    submitBtn.disabled = true;
+                }
+            }
+
+            // Add event listeners for input changes
+            bookIdInput.addEventListener('change', () => {
+                if (bookIdInput.value) {
+                    fetchBookInfo(bookIdInput.value);
+                } else {
+                    bookInfo.style.display = 'none';
+                }
+            });
+
+            studentIdInput.addEventListener('change', () => {
+                if (studentIdInput.value) {
+                    fetchStudentInfo(studentIdInput.value);
+                } else {
+                    studentInfo.style.display = 'none';
+                    errorMessage.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                
+                // Hide any existing messages
+                confirmationMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
+                
+                const formData = {
+                    studentId: studentIdInput.value,
+                    bookId: bookIdInput.value
+                };
+                
+                try {
+                    const response = await fetch('/library/return-book', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Show success message
+                        confirmationMessage.textContent = data.message;
+                        confirmationMessage.style.display = 'block';
+                        
+                        // Clear the form and info displays
+                        form.reset();
+                        bookInfo.style.display = 'none';
+                        studentInfo.style.display = 'none';
+                        
+                        // Hide success message after 3 seconds
+                        setTimeout(() => {
+                            confirmationMessage.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        // Show error message
+                        errorMessage.textContent = data.error || 'Failed to return book';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    // Show error message
+                    errorMessage.textContent = 'An error occurred while returning the book';
+                    errorMessage.style.display = 'block';
+                } finally {
+                    // Remove loading state
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

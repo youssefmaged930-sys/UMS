@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        .login-container {
+            background-color: white;
+            width: 400px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            border-color: #d35400;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(211, 84, 0, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #d35400;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            background-color: #a04000;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .back-link:hover {
+            color: #d35400;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #d35400;
+            font-weight: 700;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">University System</div>
+        <div class="login-title">Administrator Login</div>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="adminId">Admin ID</label>
+                <input type="text" id="adminId" placeholder="Enter your admin ID" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                Access Dashboard
+                <span id="loadingSpinner" class="loading" style="display: none;"></span>
+                <a href="admin-dashboard.html"></a>
+            </button>
+        </form>
+        
+        <a href="/" class="back-link">← Back to Main Menu</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Clear previous error
+                errorMessage.style.display = 'none';
+                
+                // Get form values
+                const adminId = document.getElementById('adminId').value.trim();
+                const password = document.getElementById('password').value;
+                
+                // Validate inputs
+                if (!adminId || !password) {
+                    showError('Please enter both admin ID and password');
+                    return;
+                }
+                
+                try {
+                    // Show loading state
+                    loginBtn.disabled = true;
+                    loadingSpinner.style.display = 'inline-block';
+                    
+                    // Send login request to backend
+                    const response = await fetch('/admin/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            admin_id: adminId,
+                            password: password
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Login failed');
+                    }
+                    
+                    // Login successful - redirect to dashboard
+                    window.location.href = `/admin/${adminId}/dashboard`;
+                    
+                } catch (error) {
+                    showError(error.message);
+                    console.error('Login error:', error);
+                } finally {
+                    // Reset loading state
+                    loginBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                }
+            });
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

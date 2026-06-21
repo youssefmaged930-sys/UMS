@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: #2c3e50;
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .welcome-message {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: #4a6fa5;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .courses-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .courses-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .courses-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .no-courses {
+            text-align: center;
+            padding: 30px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #4a6fa5;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>PROFESSOR DASHBOARD</h1>
+            <div class="welcome-message" id="welcomeMessage"></div>
+        </div>
+
+        <div id="invalidProfessor" class="alert" style="display: none;">
+            Invalid Professor ID. Please try again.
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="card">
+                <h2 class="card-title">Professor Information</h2>
+                <div class="info-grid">
+                    <div class="info-label">Professor ID:</div>
+                    <div id="professorId"></div>
+                    
+                    <div class="info-label">Name:</div>
+                    <div id="professorName"></div>
+                    
+                    <div class="info-label">Email:</div>
+                    <div id="professorEmail"></div>
+                    
+                    <div class="info-label">Department:</div>
+                    <div id="professorDepartment"></div>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="coursesCount">0</div>
+                    <div class="stat-label">Courses Teaching</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="studentsCount">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgGrade">-</div>
+                    <div class="stat-label">Average Grade</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Assigned Courses</h2>
+                <div id="coursesTable">
+                    <div class="no-courses">
+                        No courses assigned yet.
+                    </div>
+                </div>
+            </div>
+
+            <a href="professor-login.html" class="back-btn">Back to Login</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const professorId = urlParams.get('id');
+            
+            if (!professorId) {
+                throw new Error('No professor ID provided in URL');
+            }
+
+            // Show loading state
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('invalidProfessor').style.display = 'none';
+
+            const response = await fetch(`http://localhost:5000/professors/${professorId}/dashboard`);
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(error.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const professor = await response.json();
+            
+            // Display the data
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${professor.name}!`;
+            document.getElementById('professorId').textContent = professor.prof_id;
+            document.getElementById('professorName').textContent = professor.name;
+            document.getElementById('professorEmail').textContent = professor.email;
+            document.getElementById('professorDepartment').textContent = professor.department || 'N/A';
+            
+            // Update stats
+            document.getElementById('coursesCount').textContent = professor.total_courses;
+            document.getElementById('studentsCount').textContent = professor.total_students;
+            
+            // Calculate overall average grade
+            let totalGrades = 0;
+            let totalStudentsWithGrades = 0;
+            professor.courses_teaching.forEach(course => {
+                if (course.avg_grade && course.avg_grade !== 'N/A') {
+                    totalGrades += course.students * (
+                        course.avg_grade === 'A' ? 95 :
+                        course.avg_grade === 'B' ? 85 :
+                        course.avg_grade === 'C' ? 75 :
+                        course.avg_grade === 'D' ? 65 :
+                        course.avg_grade === 'F' ? 55 : 0
+                    );
+                    totalStudentsWithGrades += course.students;
+                }
+            });
+            
+            const overallAvgGrade = totalStudentsWithGrades > 0 ? 
+                (totalGrades / totalStudentsWithGrades >= 90 ? 'A' :
+                totalGrades / totalStudentsWithGrades >= 80 ? 'B' :
+                totalGrades / totalStudentsWithGrades >= 70 ? 'C' :
+                totalGrades / totalStudentsWithGrades >= 60 ? 'D' : 'F') : 'N/A';
+            
+            document.getElementById('avgGrade').textContent = overallAvgGrade;
+            
+            // Update courses table
+            const coursesTable = document.getElementById('coursesTable');
+            if (professor.courses_teaching && professor.courses_teaching.length > 0) {
+                coursesTable.innerHTML = `
+                    <table class="courses-table">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Students</th>
+                                <th>Avg. Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${professor.courses_teaching.map(course => `
+                                <tr>
+                                    <td>${course.code}</td>
+                                    <td>${course.name}</td>
+                                    <td>${course.students}</td>
+                                    <td>${course.avg_grade || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                coursesTable.innerHTML = '<div class="no-courses">No courses assigned yet.</div>';
+            }
+
+            // Show dashboard
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+            const errorElement = document.getElementById('invalidProfessor');
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                const messageElement = errorElement.querySelector('.error-message');
+                if (messageElement) {
+                    messageElement.textContent = error.message;
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>

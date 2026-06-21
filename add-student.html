@@ -1,0 +1,162 @@
+<head>
+    <title>add student</title>
+</head>
+<script>
+    // Wait for DOM to load
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('addStudentForm');
+        const cancelBtn = document.querySelector('.cancel-btn');
+        
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = Object.fromEntries(new FormData(form));
+            
+            try {
+                const response = await fetch('/students/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Student created successfully!');
+                    window.location.href = '/';
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                alert('Failed to submit form');
+                console.error(error);
+            }
+        });
+        
+        // Cancel button
+        cancelBtn.addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    });
+</script>
+<style>
+    .form-panel {
+    background-color: #ffffff;
+    width: 500px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.form-panel h2 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #34495e;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #4a6fa5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.submit-btn {
+    padding: 12px 25px;
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.cancel-btn {
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin-left: 10px;
+}
+
+.submit-btn:hover {
+    background-color: #3a5a8a;
+    transform: translateY(-2px);
+}
+
+.cancel-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.confirmation-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #d4edda;
+    color: #155724;
+    display: none;
+}
+</style>
+<body>
+    <div class="form-panel">
+        <h2>Add New Student</h2>
+        <form id="addStudentForm">
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="major">Major:</label>
+                <input type="text" id="major" name="major" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Add Student</button>
+                <button type="button" class="cancel-btn">Cancel</button>
+            </div>
+        </form>
+        <div id="confirmationMessage" class="confirmation-message"></div>
+    </div>
+</body>

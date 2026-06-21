@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Classroom Information</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .classroom-container {
+            background-color: white;
+            width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .classroom-header {
+            background-color: #3498db;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .classroom-header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .classroom-body {
+            padding: 30px;
+        }
+
+        .search-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .search-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .search-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .classroom-info {
+            display: none;
+        }
+
+        .info-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .info-value {
+            color: #2c3e50;
+        }
+
+        .no-classroom {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #5d6d7e;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .booking-card {
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .booking-title {
+            font-weight: 600;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .upcoming-booking {
+            background-color: #d6eaf8;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="classroom-container">
+        <div class="classroom-header">
+            <h1>CLASSROOM INFORMATION</h1>
+        </div>
+        
+        <div class="classroom-body">
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="classroomId">Enter Classroom ID:</label>
+                    <input type="text" id="classroomId" placeholder="e.g. 1">
+                </div>
+                <button class="search-btn" id="searchBtn">View Classroom Info</button>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+            
+            <div id="classroomInfo" class="classroom-info">
+                <div class="info-card">
+                    <h3 class="info-title">Classroom Details</h3>
+                    <div class="info-grid">
+                        <div class="info-label">ID:</div>
+                        <div class="info-value" id="classroomIdDisplay"></div>
+                        
+                        <div class="info-label">Location:</div>
+                        <div class="info-value" id="classroomLocation"></div>
+                        
+                        <div class="info-label">Capacity:</div>
+                        <div class="info-value" id="classroomCapacity"></div>
+                    </div>
+                </div>
+                
+                <a href="/" class="back-btn">Back to Main Menu</a>
+            </div>
+            
+            <div id="noClassroom" class="no-classroom">
+                Enter a Classroom ID to view information
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchBtn').addEventListener('click', async function() {
+            const classroomId = document.getElementById('classroomId').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const classroomInfo = document.getElementById('classroomInfo');
+            const noClassroom = document.getElementById('noClassroom');
+            
+            // Reset displays
+            errorMessage.style.display = 'none';
+            classroomInfo.style.display = 'none';
+            noClassroom.style.display = 'none';
+            
+            if (!classroomId) {
+                errorMessage.textContent = "Please enter a Classroom ID";
+                errorMessage.style.display = 'block';
+                noClassroom.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/classrooms/${classroomId}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch classroom information');
+                }
+                
+                // Update classroom info
+                document.getElementById('classroomIdDisplay').textContent = data.classroom_id;
+                document.getElementById('classroomLocation').textContent = data.location;
+                document.getElementById('classroomCapacity').textContent = data.capacity;
+                
+                classroomInfo.style.display = 'block';
+                
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+                noClassroom.style.display = 'block';
+                noClassroom.textContent = "No classroom found with that ID";
+            }
+        });
+    </script>
+</body>
+</html>
