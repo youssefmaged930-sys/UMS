@@ -2,176 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>University Management System - Login</title>
+    <title>University Management System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .login-container {
-            background: white;
-            width: 420px;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        .button-panel {
+            background-color: #ffffff;
+            width: 800px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
         }
 
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-            color: #4a6fa5;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            font-size: 36px;
-        }
-
-        .subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .user-type-selector {
-            display: flex;
-            margin-bottom: 30px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .user-type-btn {
-            flex: 1;
-            padding: 15px;
-            background: #f8f9fa;
+        .button-panel a {
+            padding: 12px 15px;
             border: none;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #5d6d7e;
-        }
-
-        .user-type-btn:hover {
-            background: #e9ecef;
-        }
-
-        .user-type-btn.active {
-            background: #4a6fa5;
+            border-radius: 8px;
+            background-color: #4a6fa5;
             color: white;
-        }
-
-        .login-form {
-            display: none;
-        }
-
-        .login-form.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
             font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            border-color: #4a6fa5;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: #4a6fa5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .login-btn:hover {
-            background: #3a5a8a;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .login-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .special-access-btn {
-            width: 100%;
-            padding: 16px;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
             position: relative;
             overflow: hidden;
+            text-decoration: none;
         }
 
-        .admin-direct-btn {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        }
-
-        .librarian-direct-btn {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        }
-
-        .special-access-btn::before {
+        .button-panel a::before {
             content: '';
             position: absolute;
             top: 0;
@@ -182,388 +52,98 @@
             transition: 0.5s;
         }
 
-        .special-access-btn:hover {
+        .button-panel a:hover {
+            background-color: #3a5a8a;
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .special-access-btn:hover::before {
+        .button-panel a:hover::before {
             left: 100%;
         }
 
-        .demo-credentials {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 13px;
-            border-left: 4px solid #4a6fa5;
+        .button-panel a:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .demo-credentials h4 {
-            color: #34495e;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .demo-credentials p {
-            color: #7f8c8d;
-            margin: 5px 0;
-            line-height: 1.5;
-        }
-
-        .demo-credentials strong {
-            color: #4a6fa5;
-        }
-
-        .special-panel {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 2px dashed #e0e0e0;
+        .button-panel a:last-child {
+            background-color: #e74c3c;
+            grid-column: span 3;
             text-align: center;
         }
 
-        .special-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+        .button-panel a:last-child:hover {
+            background-color: #c0392b;
         }
 
-        .admin-icon {
-            color: #2ecc71;
-        }
-
-        .librarian-icon {
-            color: #9b59b6;
-        }
-
-        .special-title {
-            color: #34495e;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .special-description {
-            color: #7f8c8d;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
+        .submit-btn {
+            padding: 12px 15px;
+            border: none;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-            border-left: 4px solid #c33;
-        }
-
-        .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #95a5a6;
+            background-color: #e74c3c;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            grid-column: span 3;
             text-align: center;
         }
 
-        .user-guide {
-            color: #7f8c8d;
-            font-size: 13px;
-            margin-top: 15px;
-            line-height: 1.5;
+        .submit-btn:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <span class="logo-icon">🏛️</span>
-            University System
-        </div>
-        <p class="subtitle">Secure Access to University Management System</p>
-        
-        <div class="user-type-selector">
-            <button class="user-type-btn active" onclick="setUserType('student')">Student</button>
-            <button class="user-type-btn" onclick="setUserType('professor')">Professor</button>
-            <button class="user-type-btn" onclick="setUserType('librarian')">Librarian</button>
-            <button class="user-type-btn" onclick="setUserType('admin')">Admin</button>
-        </div>
+    <form id="button-panel" class="button-panel">
+        <a href="add-student.html">1. Add Student</a>
+        <a href="add-professor.html">2. Add Professor</a>
+        <a href="add-course.html">3. Add Course</a>
+        <a href="enroll-student-in-course.html">4. Enroll Student in Course</a>
+        <a href="assign-professor-to-course.html">5. Assign Professor to Course</a>
+        <a href="student-login.html">6. View Student Dashboard</a>
+        <a href="professor-login.html">7. View Professor Dashboard</a>
+        <a href="add-book.html">9. Add Book to Library</a>
+        <a href="register-student.html">10. Register Student to Library</a>
+        <a href="borrow-book.html">11. Borrow Book</a>
+        <a href="return-book.html">12. Return Book</a>
+        <a href="schedule-exam.html">13. Schedule Exam</a>
+        <a href="record-exam-result.html">14. Record Exam Result</a>
+        <a href="view-exam-info.html">15. View Exam Info</a>
+        <a href="add-classroom.html">16. Add Classroom</a>
+        <a href="allocate-time-to-classroom.html">17. Allocate Time Slot</a>
+        <a href="view-classroom-info.html">18. View Classroom Info</a>
+        <a href="assign-schedule.html">19. Assign Schedule</a>
+        <a href="view-schedule-details.html">20. View Schedule Details</a>
+        <a href="assign-grade.html">21. Assign Grade to Student</a>
 
-        <!-- Student Login Form -->
-        <form id="studentForm" class="login-form active">
-            <div class="form-group">
-                <label>Student ID</label>
-                <input type="text" id="studentId" placeholder="Enter your Student ID (e.g., S1001)" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="studentPassword" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="login-btn" id="studentLoginBtn">Student Login</button>
-            
-            <div class="demo-credentials">
-                <h4>Demo Student Credentials:</h4>
-                <p><strong>ID:</strong> S1001 | <strong>Password:</strong> student123</p>
-                <p><strong>ID:</strong> S1002 | <strong>Password:</strong> student123</p>
-                <p class="user-guide">Use the demo credentials above to test student login functionality.</p>
-            </div>
-        </form>
-
-        <!-- Professor Login Form -->
-        <form id="professorForm" class="login-form">
-            <div class="form-group">
-                <label>Professor ID</label>
-                <input type="text" id="professorId" placeholder="Enter your Professor ID (e.g., P1001)" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="professorPassword" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="login-btn" id="professorLoginBtn">Professor Login</button>
-            
-            <div class="demo-credentials">
-                <h4>Demo Professor Credentials:</h4>
-                <p><strong>ID:</strong> P1001 | <strong>Password:</strong> professor123</p>
-                <p><strong>ID:</strong> P1002 | <strong>Password:</strong> professor123</p>
-                <p class="user-guide">Use the demo credentials above to test professor login functionality.</p>
-            </div>
-        </form>
-
-        <!-- Librarian Login Form -->
-        <form id="librarianForm" class="login-form">
-            <div class="form-group">
-                <label><i class="fas fa-book-reader"></i> Librarian ID</label>
-                <input type="text" id="librarianId" placeholder="Enter your Librarian ID (e.g., L1001)" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-key"></i> Password</label>
-                <input type="password" id="librarianPassword" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="login-btn" id="librarianLoginBtn">
-                <i class="fas fa-sign-in-alt"></i> Librarian Login
-            </button>
-            
-            <div class="demo-credentials">
-                <h4><i class="fas fa-info-circle"></i> Demo Librarian Credentials:</h4>
-                <p><strong>ID:</strong> L1001 | <strong>Password:</strong> librarian123</p>
-                <p><strong>ID:</strong> L1002 | <strong>Password:</strong> librarian123</p>
-                <p class="user-guide">Use the demo credentials above to test librarian login functionality.</p>
-            </div>
-        </form>
-
-        <!-- Admin Access Panel -->
-        <div id="adminForm" class="login-form">
-            <div class="admin-panel">
-                <div class="admin-icon">👨‍💼</div>
-                <div class="admin-title">Administrator Access</div>
-                <div class="admin-description">
-                    Direct access to the University Management System workspace with full administrative privileges.
-                </div>
-                <button class="admin-direct-btn" id="adminAccessBtn">
-                    Enter Admin Workspace →
-                </button>
-            </div>
-            
-            <div class="demo-credentials">
-                <h4>Administrator Note:</h4>
-                <p>No login credentials required for admin access in this demo version.</p>
-                <p>Full access to all system modules: Student Management, Course Administration, Library System, Exam Scheduling, and Classroom Allocation.</p>
-                <p class="user-guide">Click the green button above to enter the administrative dashboard.</p>
-            </div>
-        </div>
-
-        <div id="errorMessage" class="error-message"></div>
-
-        <div class="footer">
-            © 2024 University Management System v2.0 | Secure Login Portal
-        </div>
-    </div>
+        <button type="submit" class="submit-btn">Save Data</button>
+    </form>
 
     <script>
-        // Set initial user type
-        let currentUserType = 'student';
-        
-        function setUserType(type) {
-            currentUserType = type;
-            
-            // Update active button
-            document.querySelectorAll('.user-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update form visibility
-            document.querySelectorAll('.login-form').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.getElementById(`${type}Form`).classList.add('active');
-        }
-        
-        // Handle student login
-        document.getElementById('studentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const studentId = document.getElementById('studentId').value.trim();
-            const password = document.getElementById('studentPassword').value;
-            
-            if (studentId && password) {
-                // For demo purposes, accept any student login with password "student123"
-                if (password === 'student123') {
-                    // Store user info (optional)
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        role: 'student',
-                        id: studentId,
-                        name: 'Demo Student'
-                    }));
-                    
-                    // Redirect to student dashboard or admin workspace for demo
-                    window.location.href = `student-dashboard.html?id=${studentId}`;
-                } else {
-                    showError('Invalid password. Use "student123" for demo.');
-                }
-            } else {
-                showError('Please fill in all fields.');
-            }
-        });
-        
-        // Handle professor login
-        document.getElementById('professorForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const professorId = document.getElementById('professorId').value.trim();
-            const password = document.getElementById('professorPassword').value;
-            
-            if (professorId && password) {
-                // For demo purposes, accept any professor login with password "professor123"
-                if (password === 'professor123') {
-                    // Store user info (optional)
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        role: 'professor',
-                        id: professorId,
-                        name: 'Demo Professor'
-                    }));
-                    
-                    // Redirect to professor dashboard or admin workspace for demo
-                    window.location.href = `prof-dashboard.html?id=${professorId}`;
-                } else {
-                    showError('Invalid password. Use "professor123" for demo.');
-                }
-            } else {
-                showError('Please fill in all fields.');
-            }
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const panel = document.getElementById('button-panel');
 
-        // Handle librarian login
-        document.getElementById('librarianForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const librarianId = document.getElementById('librarianId').value.trim();
-            const password = document.getElementById('librarianPassword').value;
-            
-            if (librarianId && password) {
+            panel.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
                 try {
-                    const response = await fetch('/api/login', {
+                    const response = await fetch('/data_manager/save', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            user_id: librarianId,
-                            password: password,
-                            role: 'librarian'
-                        })
                     });
-                    
-                    const data = await response.json();
-                    
+
+                    const result = await response.json();
                     if (response.ok) {
-                        localStorage.setItem('currentUser', JSON.stringify(data.user));
-                        sessionStorage.setItem('userRole', 'librarian');
-                        sessionStorage.setItem('userId', librarianId);
-                        window.location.href = `librarian-dashboard.html?id=${librarianId}`;
-                    } else {
-                        if (password === 'librarian123') {
-                            localStorage.setItem('currentUser', JSON.stringify({
-                                role: 'librarian',
-                                id: librarianId,
-                                name: 'Demo Librarian'
-                            }));
-                            window.location.href = `librarian-dashboard.html?id=${librarianId}`;
-                        } else {
-                            showError(data.error || 'Invalid credentials');
-                        }
+                        alert('Data Saved Successfully');
                     }
                 } catch (error) {
-                    if (password === 'librarian123') {
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            role: 'librarian',
-                            id: librarianId,
-                            name: 'Demo Librarian'
-                        }));
-                        window.location.href = `librarian-dashboard.html?id=${librarianId}`;
-                    } else {
-                        showError('Connection error. Use "librarian123" for demo.');
-                    }
+                    alert('Failed to save data');
+                    console.error(error);
                 }
-            } else {
-                showError('Please fill in all fields.');
-            }
-        }); 
-        
-        // Handle admin direct access
-        document.getElementById('adminAccessBtn').addEventListener('click', function() {
-            // Store admin info in localStorage
-            localStorage.setItem('currentUser', JSON.stringify({
-                role: 'admin',
-                id: 'ADMIN',
-                name: 'System Administrator',
-                accessLevel: 'full'
-            }));
-            
-            // Add a small delay for better UX
-            this.disabled = true;
-            this.innerHTML = 'Redirecting...';
-            
-            setTimeout(() => {
-                // Redirect to admin workspace
-                window.location.href = '/admin';
-            }, 500);
-        });
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Pre-fill demo credentials for testing (optional)
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('University Login Portal Loaded');
-            
-            // Optional: Auto-fill demo credentials (comment out in production)
-            /*
-            document.getElementById('studentId').value = 'S1001';
-            document.getElementById('studentPassword').value = 'student123';
-            
-            document.getElementById('professorId').value = 'P1001';
-            document.getElementById('professorPassword').value = 'professor123';
-            */
-            
-            // Check URL parameters for any messages
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('message')) {
-                showError(urlParams.get('message'));
-            }
-            
-            // Auto-focus first input
-            document.getElementById('studentId').focus();
+            });
         });
     </script>
 </body>
